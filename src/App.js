@@ -1,23 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import flashcards from "./data/flashcards";
+import FlashCard from "./components/FlashCard";
+import "./App.css";
 
 function App() {
+  const [index, setIndex] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+
+  const nextCard = () => {
+    setFlipped(false);
+    setIndex((prev) => (prev + 1) % flashcards.length);
+  };
+
+  const prevCard = () => {
+    setFlipped(false);
+    setIndex((prev) =>
+      prev === 0 ? flashcards.length - 1 : prev - 1
+    );
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app">
+      <h1>Flash Card App</h1>
+
+      <FlashCard
+        text={flashcards[index]}
+        flipped={flipped}
+        onClick={() => setFlipped(!flipped)}
+      />
+
+      <div className="buttons">
+        <button onClick={prevCard} style={{ marginTop: "30px" }}>Previous</button>
+        <button onClick={nextCard}>Next</button>
+      </div>
     </div>
   );
 }
