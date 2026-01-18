@@ -135,7 +135,7 @@
 /* ---------------- Responsive for mobile ---------------- */
 @media (max-width: 600px) {
   .card {
-    width: 90%;     /* shrink to 90% of screen width */
+    width: 50%;     /* shrink to 90% of screen width */
     height: 160px;  /* smaller height on mobile */
   }
 
