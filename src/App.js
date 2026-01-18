@@ -76,7 +76,8 @@ function App() {
             flipped={flipped}
             onClick={() => setFlipped(!flipped)}
           />
-          <div className="buttons" style={{ marginTop: "20px" }}>
+          
+          <div className="buttons" style={{ marginTop: "60px" }}>
             <button onClick={prevCard} style={{ marginRight: "10px" }}>
               Previous
             </button>
@@ -86,8 +87,10 @@ function App() {
       ) : (
         <p>No flashcards available.</p>
       )}
-
-      <AddFlashCard onAdd={addFlashCard} />
+      <div  style={{ marginTop: "60px" }}> 
+        <AddFlashCard onAdd={addFlashCard} />
+      </div>
+      
     </div>
   );
 }

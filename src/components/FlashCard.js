@@ -9,8 +9,8 @@ const FlashCard = ({ text, flipped, onClick }) => {
       <div className="card-inner">
         <div className="card-front">{text.question}</div>
         <div className="card-back">
-          <p>{text.answer}</p>
-          <p>{text.myanmar}</p>
+          <p >{text.answer}</p>
+          <p style={{ marginTop: "100px",marginLeft: "-100px" }}>{text.myanmar}</p>
         </div>
       </div>
     </div>
