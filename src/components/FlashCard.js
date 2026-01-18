@@ -18,3 +18,4 @@ const FlashCard = ({ text, flipped, onClick }) => {
 };
 
 export default FlashCard;
+

@@ -29,7 +29,7 @@ const AddFlashCard = ({ onAdd }) => {
                 padding: "20px",
                 border: "1px solid #ddd",
                 borderRadius: "15px",
-                backgroundColor: "#fafafa"
+                backgroundColor: "#bb57e9"
             }}
         >
             <div style={{ display: "flex", alignItems: "center", marginBottom: "15px" }}>
@@ -71,6 +71,7 @@ const AddFlashCard = ({ onAdd }) => {
                     width: "100%",
                     padding: "10px",
                     fontWeight: "bold",
+                    // backgroundColor: "gray",
                     cursor: "pointer"
                 }}
             >
