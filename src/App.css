@@ -82,7 +82,8 @@
 }
 
 .nav-link:hover {
-  background-color: #e0e0e0;
+  background-color: #e46be4;
+  border-radius: 15px;
 }
 
 .nav-link:active {

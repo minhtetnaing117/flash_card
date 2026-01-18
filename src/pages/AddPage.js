@@ -1,12 +1,23 @@
 import React from "react";
 import AddFlashCard from "../components/AddFlashCard";
+import { Container, Typography, Paper, Box } from "@mui/material";
 
 const AddPage = () => {
   return (
-    <div className="page">
-      <h2>Add New Flashcard</h2>
-      <AddFlashCard />
-    </div>
+    <Container maxWidth="sm" sx={{ mt: 4 }}>
+      {/* Page Title */}
+      <Typography variant="h5" align="center" gutterBottom>
+        Add New Flashcard
+      </Typography>
+
+      {/* Form Container */}
+      <Paper elevation={3} sx={{ p: 3 }}>
+        <Box>
+          {/* AddFlashCard component */}
+          <AddFlashCard />
+        </Box>
+      </Paper>
+    </Container>
   );
 };
 
