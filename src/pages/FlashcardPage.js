@@ -57,7 +57,7 @@ const FlashcardPage = () => {
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    minHeight: { xs: "300px", sm: "250px" }, // ensures some height for mobile
+                    minHeight: { xs: "50%", sm: "50%" }, // ensures some height for mobile
                 }}
             >
                 <FlashCard
