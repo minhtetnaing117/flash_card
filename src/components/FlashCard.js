@@ -1,16 +1,44 @@
 import React from "react";
-import "./FlashCard.css"; // add flip styles here
+import "./FlashCard.css"; // keep your flip styles here
 
 const FlashCard = ({ text, flipped, onClick }) => {
-  if (!text) return null; // avoid crash if text is undefined
+  if (!text) return null; // prevent crash
 
   return (
     <div className={`card ${flipped ? "flipped" : ""}`} onClick={onClick}>
       <div className="card-inner">
-        <div className="card-front">{text.question}</div>
+        {/* Front side */}
+        <div className="card-front">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+              textAlign: "center",
+              padding: "10px",
+            }}
+          >
+            {text.question}
+          </div>
+        </div>
+
+        {/* Back side */}
         <div className="card-back">
-          <p >{text.answer}</p>
-          <p style={{ marginTop: "100px",marginLeft: "-100px" }}>{text.myanmar}</p>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+              textAlign: "center",
+              padding: "10px",
+            }}
+          >
+            <p style={{ margin: "5px 0" }}>{text.answer}</p>
+            <p style={{ margin: "5px 0" }}>{text.myanmar}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -18,4 +46,3 @@ const FlashCard = ({ text, flipped, onClick }) => {
 };
 
 export default FlashCard;
-
