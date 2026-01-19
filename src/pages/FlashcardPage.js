@@ -50,7 +50,7 @@ const FlashcardPage = () => {
             </Typography>
 
             <Paper
-                elevation={3}
+                elevation={0}
                 sx={{
                     p: { xs: 2, sm: 3 },
                     mb: 4,
@@ -70,10 +70,11 @@ const FlashcardPage = () => {
 
 
             <Stack
-                direction={{ xs: "column", sm: "row" }}
+                direction={{ xs: "row", sm: "row" }}
                 spacing={2}
                 justifyContent="center"
                 alignItems="center"
+                marginTop={{ xs: 1, sm: -120 }}
             >
                 <Button
                     variant="outlined"

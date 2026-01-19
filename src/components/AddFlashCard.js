@@ -72,6 +72,7 @@ const AddFlashCard = ({ onAdd }) => {
                     padding: "10px",
                     fontWeight: "bold",
                     // backgroundColor: "gray",
+                   
                     cursor: "pointer"
                 }}
             >

@@ -11,7 +11,7 @@ const AddPage = () => {
       </Typography>
 
       {/* Form Container */}
-      <Paper elevation={3} sx={{ p: 3 }}>
+      <Paper elevation={0} sx={{ p: 3 }}>
         <Box>
           {/* AddFlashCard component */}
           <AddFlashCard />
