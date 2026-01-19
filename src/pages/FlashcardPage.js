@@ -74,7 +74,7 @@ const FlashcardPage = () => {
                 spacing={2}
                 justifyContent="center"
                 alignItems="center"
-                marginTop={{ xs: 1, sm: -120 }}
+                marginTop={{ xs: -10, sm: -10 }}
             >
                 <Button
                     variant="outlined"
