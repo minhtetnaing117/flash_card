@@ -64,6 +64,7 @@ const AddExcel = () => {
 
         const cleanedCards = cards
             .map((c) => ({
+                title: String(c.title ?? "").trim(),
                 question: String(c.question ?? "").trim(),
                 answer: String(c.answer ?? "").trim(),
                 myanmar: String(c.myanmar ?? "").trim(),
