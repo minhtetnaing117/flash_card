@@ -113,7 +113,7 @@ const FlashcardPage = () => {
                     value={selectedLevel}
                     onChange={(e) => setSelectedLevel(e.target.value)}
                     autoWidth
-                    label="Al"
+                    label="All"
                 >
                     <MenuItem value="">
                         <em>All</em>
