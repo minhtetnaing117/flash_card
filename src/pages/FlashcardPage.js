@@ -15,7 +15,7 @@ import {
     Button,
     Stack,
     Paper,
-
+    TextField,
 } from "@mui/material";
 
 const FlashcardPage = () => {
@@ -31,8 +31,8 @@ const FlashcardPage = () => {
 
     // const handleChange = (event: SelectChangeEvent) => {
     //     setSearch(event.target.value);
-        // setSearch(levels)
-        // console.log("LEVELS:", levels);
+    // setSearch(levels)
+    // console.log("LEVELS:", levels);
     // };
 
     useEffect(() => {
@@ -98,13 +98,16 @@ const FlashcardPage = () => {
             </Typography>
 
             {/* Search */}
-            {/* <TextField
+            <TextField
                 fullWidth
                 label="Search by title"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                sx={{ mb: 3 }}
-            /> */}
+                sx={{
+                    mb: 3,
+                    visibility: "hidden"
+                }}
+            />
             <FormControl sx={{ m: 1, minWidth: 80 }}>
                 <InputLabel id="demo-simple-select-autowidth-label">Title</InputLabel>
                 <Select
