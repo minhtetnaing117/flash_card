@@ -69,27 +69,7 @@ const FlashcardPage = () => {
         setFlipped(false);
     }, [search]);
 
-    // if (filteredFlashcards.length === 0) {
-    //     return (
-    //         <Container maxWidth="sm">
-    //             <Typography variant="h5" align="center" sx={{ mt: 4 }}>
-    //                 Flashcard Study
-    //             </Typography>
-
-    {/* <TextField
-                    fullWidth
-                    label="Search by title"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    sx={{ mt: 3 }}
-                /> */}
-
-    {/* <Typography align="center" sx={{ mt: 3 }}>
-                    No flashcards found
-                </Typography>
-            </Container>
-        );
-    } */}
+    
 
     return (
         <Container maxWidth="sm" sx={{ py: 4 }}>
