@@ -30,7 +30,7 @@ const AddFlashCard = ({ onAdd }) => {
         if (typeof onAdd === "function") {
             onAdd(newCard);
         } else {
-            console.warn("onAdd is not a function!",newCard);
+            console.warn("onAdd is not a function!", newCard);
         }
 
         setTitle("");
@@ -43,12 +43,10 @@ const AddFlashCard = ({ onAdd }) => {
         <form
             onSubmit={handleSubmit}
             style={{
-                marginTop: "30px",
+                marginTop: "20px",
                 maxWidth: "450px",
-                marginLeft: "40px",
-                marginBottom: "30px",
-                marginRight: "auto",
-                padding: "20px",
+                margin: "0 auto 30px",
+                padding: "16px",
                 border: "1px solid #ddd",
                 borderRadius: "15px",
                 backgroundColor: "#bb57e9",
@@ -62,7 +60,13 @@ const AddFlashCard = ({ onAdd }) => {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Category / Title"
-                    style={{ flex: 1, padding: "6px" }}
+                    style={{
+                        width: "100%",
+                        padding: "10px",
+                        borderRadius: "6px",
+                        border: "1px solid #ccc",
+                        fontSize: "16px", // prevents zoom on iOS
+                    }}
                 />
             </div>
 
@@ -74,7 +78,13 @@ const AddFlashCard = ({ onAdd }) => {
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
                     placeholder="Kanji / Word"
-                    style={{ flex: 1, padding: "6px" }}
+                    style={{
+                        width: "100%",
+                        padding: "10px",
+                        borderRadius: "6px",
+                        border: "1px solid #ccc",
+                        fontSize: "16px", // prevents zoom on iOS
+                    }}
                 />
             </div>
 
@@ -86,7 +96,13 @@ const AddFlashCard = ({ onAdd }) => {
                     value={answer}
                     onChange={(e) => setAnswer(e.target.value)}
                     placeholder="Romaji / Meaning"
-                    style={{ flex: 1, padding: "6px" }}
+                    style={{
+                        width: "100%",
+                        padding: "10px",
+                        borderRadius: "6px",
+                        border: "1px solid #ccc",
+                        fontSize: "16px", // prevents zoom on iOS
+                    }}
                 />
             </div>
 
@@ -98,7 +114,13 @@ const AddFlashCard = ({ onAdd }) => {
                     value={myanmar}
                     onChange={(e) => setMyanmar(e.target.value)}
                     placeholder="မြန်မာဘာသာ"
-                    style={{ flex: 1, padding: "6px" }}
+                    style={{
+                        width: "100%",
+                        padding: "10px",
+                        borderRadius: "6px",
+                        border: "1px solid #ccc",
+                        fontSize: "16px", // prevents zoom on iOS
+                    }}
                 />
             </div>
 
