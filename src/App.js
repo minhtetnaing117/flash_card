@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 import FlashcardPage from "./pages/FlashcardPage";
 import AddPage from "./pages/AddPage";
+import ExcelPage from "./pages/ExcelPage";
 
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -16,7 +17,7 @@ const App = () => {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Flashcards App
+            Flashcards
           </Typography>
 
           {/* Nav buttons */}
@@ -34,7 +35,7 @@ const App = () => {
                 textTransform: "none",
               }}
             >
-              Flashcards
+              Study
             </Button>
 
             <Button
@@ -49,7 +50,22 @@ const App = () => {
                 textTransform: "none",
               }}
             >
-              Add Flashcard
+              Add
+            </Button>
+
+            <Button
+              color="inherit"
+              component={NavLink}
+              to="/excel_add"
+              sx={{
+                "&.active": {
+                  fontWeight: "bold",
+                  borderBottom: "2px solid white",
+                },
+                textTransform: "none",
+              }}
+            >
+              Excel
             </Button>
           </Box>
         </Toolbar>
@@ -59,6 +75,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<FlashcardPage />} />
         <Route path="/add" element={<AddPage />} />
+        <Route path="/excel_add" element={<ExcelPage />} />
       </Routes>
     </BrowserRouter>
   );
