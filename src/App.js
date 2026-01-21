@@ -17,7 +17,7 @@ const App = () => {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Flashcards
+            Flashcard
           </Typography>
 
           {/* Nav buttons */}
