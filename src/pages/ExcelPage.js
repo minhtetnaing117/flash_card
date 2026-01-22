@@ -7,7 +7,7 @@ const ExcelPage = () => {
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       {/* Page Title */}
       <Typography variant="h5" align="center" gutterBottom>
-        Add Excel
+        Add New Excel
       </Typography>
 
       {/* Form Container */}

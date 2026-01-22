@@ -97,7 +97,7 @@ const AddExcel = () => {
     return (
         <Container maxWidth="md" sx={{ mt: 4 }}>
             <Typography variant="h5" gutterBottom>
-                Add Flashcards (Excel)
+                Input Please
             </Typography>
 
             {/* Upload */}
