@@ -18,6 +18,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import MenuIcon from "@mui/icons-material/Menu";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import Divider from '@mui/material/Divider';
 
 const navItems = [
   { label: "Study", path: "/" },
@@ -34,25 +35,75 @@ const App = () => {
   };
 
   const drawer = (
-    <Box
-      sx={{ width: 250 }}
-      role="presentation"
-      onClick={toggleDrawer(false)}
-    >
-      <Typography variant="h6" sx={{ p: 2 }}>
-        Flashcard
-      </Typography>
+    // <Box
+    //   sx={{ width: 250, backgroundColor: "#3f8ee7", height: "100%" }}
+    //   role="presentation"
+    //   onClick={toggleDrawer(false)}
+    // >
+    //   <Typography variant="h6" sx={{ p: 2 }}>
+    //     Flashcard
+    //   </Typography>
 
-      <List>
+    //   <List>
+    //     {navItems.map((item) => (
+    //       <ListItem key={item.path} disablePadding>
+    //         <ListItemButton component={NavLink} to={item.path}>
+    //           <ListItemText primary={item.label} />
+    //         </ListItemButton>
+    //       </ListItem>
+    //     ))}
+    //   </List>
+    // </Box>
+
+    <Box
+      sx={{
+        width: 250,
+        height: '100%',
+        bgcolor: 'primary.main',
+        color: 'primary.contrastText',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+      role="presentation"
+    >
+      {/* Header */}
+      <Box sx={{ p: 2 }}>
+        <Typography variant="h6">Menu</Typography>
+      </Box>
+
+      <Divider />
+
+      {/* Menu Items */}
+      {/* <List sx={{ flexGrow: 1 }}>
+        <ListItem disablePadding>
+          <ListItemButton onClick={toggleDrawer(false)}>
+            <ListItemText primary="Home" />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton onClick={toggleDrawer(false)}>
+            <ListItemText primary="Flashcards" />
+          </ListItemButton>
+        </ListItem>
+      </List> */}
+
+      <List sx={{ flexGrow: 1 }}>
         {navItems.map((item) => (
           <ListItem key={item.path} disablePadding>
-            <ListItemButton component={NavLink} to={item.path}>
+            <ListItemButton component={NavLink} to={item.path} onClick={toggleDrawer(false)}>
               <ListItemText primary={item.label} />
             </ListItemButton>
           </ListItem>
         ))}
       </List>
+
+      {/* Footer */}
+      <Box sx={{ p: 2, fontSize: 12, opacity: 0.7 }}>
+        © 2026 Flashcard App
+      </Box>
     </Box>
+
   );
 
   return (
