@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 
 import FlashcardPage from "./pages/FlashcardPage";
@@ -9,15 +9,17 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
+import CssBaseline from "@mui/material/CssBaseline";
+
 import MenuIcon from "@mui/icons-material/Menu";
-import useMediaQuery from "@mui/material/useMediaQuery";
+
+const drawerWidth = 240;
 
 const navItems = [
   { label: "Study", path: "/" },
@@ -25,21 +27,33 @@ const navItems = [
   { label: "Excel", path: "/excel_add" },
 ];
 
-const App = () => {
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const isMobile = useMediaQuery("(max-width:600px)");
+const App = (props) => {
+  const { window } = props;
 
-  const toggleDrawer = (open) => () => {
-    setDrawerOpen(open);
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [isClosing, setIsClosing] = React.useState(false);
+
+  const handleDrawerClose = () => {
+    setIsClosing(true);
+    setMobileOpen(false);
   };
 
+  const handleDrawerTransitionEnd = () => {
+    setIsClosing(false);
+  };
+
+  const handleDrawerToggle = () => {
+    if (!isClosing) {
+      setMobileOpen(!mobileOpen);
+    }
+  };
+
+  const container =
+    window !== undefined ? () => window().document.body : undefined;
+
   const drawer = (
-    <Box
-      sx={{ width: 250 }}
-      role="presentation"
-      onClick={toggleDrawer(false)}
-    >
-      <Typography variant="h6" sx={{ p: 2 }}>
+    <Box sx={{ p: 2 }}>
+      <Typography variant="h6" sx={{ mb: 2 }}>
         Flashcard
       </Typography>
 
@@ -57,64 +71,84 @@ const App = () => {
 
   return (
     <BrowserRouter>
-      {/* AppBar */}
-      <AppBar position="static">
-        <Toolbar>
-          {isMobile && (
+      <Box sx={{ display: "flex" }}>
+        <CssBaseline />
+
+        {/* AppBar */}
+        <AppBar
+          position="fixed"
+          sx={{ width: { sm: `calc(100% - ${drawerWidth}px)` }, ml: { sm: `${drawerWidth}px` } }}
+        >
+          <Toolbar>
             <IconButton
               color="inherit"
               edge="start"
-              onClick={toggleDrawer(true)}
-              sx={{ mr: 2 }}
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2, display: { sm: "none" } }}
             >
               <MenuIcon />
             </IconButton>
-          )}
 
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Flashcard
-          </Typography>
+            <Typography variant="h6" noWrap component="div">
+              Flashcard
+            </Typography>
+          </Toolbar>
+        </AppBar>
 
-          {/* Desktop Navigation */}
-          {!isMobile && (
-            <Box>
-              {navItems.map((item) => (
-                <Button
-                  key={item.path}
-                  color="inherit"
-                  component={NavLink}
-                  to={item.path}
-                  sx={{
-                    textTransform: "none",
-                    "&.active": {
-                      fontWeight: "bold",
-                      borderBottom: "2px solid white",
-                    },
-                  }}
-                >
-                  {item.label}
-                </Button>
-              ))}
-            </Box>
-          )}
-        </Toolbar>
-      </AppBar>
+        {/* Mobile Drawer */}
+        <Drawer
+          container={container}
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerClose}
+          onTransitionEnd={handleDrawerTransitionEnd}
+          sx={{
+            display: { xs: "block", sm: "none" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
+          }}
+          ModalProps={{
+            keepMounted: true, // Better mobile performance
+          }}
+        >
+          {drawer}
+        </Drawer>
 
-      {/* Drawer for Mobile */}
-      <Drawer
-        anchor="left"
-        open={drawerOpen}
-        onClose={toggleDrawer(false)}
-      >
-        {drawer}
-      </Drawer>
+        {/* Desktop Drawer */}
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: "none", sm: "block" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
+          }}
+          open
+        >
+          {drawer}
+        </Drawer>
 
-      {/* Routes */}
-      <Routes>
-        <Route path="/" element={<FlashcardPage />} />
-        <Route path="/add" element={<AddPage />} />
-        <Route path="/excel_add" element={<ExcelPage />} />
-      </Routes>
+        {/* Main Content */}
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            p: 3,
+            width: { sm: `calc(100% - ${drawerWidth}px)` },
+          }}
+        >
+          <Toolbar />
+
+          <Routes>
+            <Route path="/" element={<FlashcardPage />} />
+            <Route path="/add" element={<AddPage />} />
+            <Route path="/excel_add" element={<ExcelPage />} />
+          </Routes>
+        </Box>
+      </Box>
     </BrowserRouter>
   );
 };
