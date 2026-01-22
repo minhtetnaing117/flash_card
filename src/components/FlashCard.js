@@ -8,9 +8,15 @@ const FlashCard = ({ text, flipped, onClick }) => {
     <div className={`card ${flipped ? "flipped" : ""}`} onClick={onClick}>
       <div className="card-inner">
         <div className="card-front">{text.question}</div>
-        <div className="card-back">
+        <div className="card-back" style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          textAlign: "center",
+          padding: "12px",
+        }}>
           <p >{text.answer}</p>
-          <p style={{ marginTop: "100px",marginLeft: "-100px" }}>{text.myanmar}</p>
+          <p >{text.myanmar}</p>
         </div>
       </div>
     </div>
