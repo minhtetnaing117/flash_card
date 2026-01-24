@@ -1,169 +1,170 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { supabase } from "../supabaseClient";
 import FlashCard from "../components/FlashCard";
+
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-
 import {
-    Container,
-    Typography,
-    Button,
-    Stack,
-    Paper,
-    TextField,
+  Container,
+  Typography,
+  Button,
+  Stack,
+  Paper,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+
 } from "@mui/material";
 
 const FlashcardPage = () => {
-    const [flashcards, setFlashcards] = useState([]);
-    const [index, setIndex] = useState(0);
-    const [flipped, setFlipped] = useState(false);
+  const [flashcards, setFlashcards] = useState([]);
+  const [index, setIndex] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [selectedLevel, setSelectedLevel] = useState("");
+  const [search, setSearch] = useState("");
 
-    // const [age, setAge] = React.useState('');
+  useEffect(() => {
+    fetchFlashcards();
+  }, []);
 
-    const levels = Array.from(new Set(flashcards.map(c => c.title))).filter(Boolean); // dynamic levels
-    const [selectedLevel, setSelectedLevel] = useState("");
-    const [search, setSearch] = useState("");
+  const fetchFlashcards = async () => {
+    const { data, error } = await supabase
+      .from("flashcards")
+      .select("*")
+      .order("id");
 
-    // const handleChange = (event: SelectChangeEvent) => {
-    //     setSearch(event.target.value);
-    // setSearch(levels)
-    // console.log("LEVELS:", levels);
-    // };
+    if (error) {
+      console.error("Fetch error:", error);
+      return;
+    }
 
-    useEffect(() => {
-        fetchFlashcards();
-    }, []);
+    setFlashcards(data || []);
+  };
 
-    const fetchFlashcards = async () => {
-        const { data, error } = await supabase
-            .from("flashcards")
-            .select("*")
-            .order("id");
+  // Unique titles for dropdown
+  const levels = useMemo(() => {
+    return Array.from(new Set(flashcards.map((c) => c.title))).filter(Boolean);
+  }, [flashcards]);
 
-        if (error) {
-            console.error(error);
-            return;
-        }
+  // Filter logic
+  const filteredFlashcards = useMemo(() => {
+    return flashcards.filter((card) => {
+      const matchesSearch =
+        !search ||
+        card.title?.toLowerCase().includes(search.toLowerCase());
 
-        setFlashcards(data || []);
-    };
+      const matchesLevel =
+        !selectedLevel || card.title === selectedLevel;
 
-    // 1️⃣ Filter by title (question)
-    const filteredFlashcards = useMemo(() => {
-        return flashcards.filter((card) => {
-            const matchesSearch = !search || card.title?.toLowerCase().includes(search.toLowerCase());
-            const matchesLevel = !selectedLevel || card.title === selectedLevel;
-            return matchesSearch && matchesLevel;
-        });
-    }, [flashcards, search, selectedLevel]);
+      return matchesSearch && matchesLevel;
+    });
+  }, [flashcards, search, selectedLevel]);
 
+  // Reset index safely when filters change
+  useEffect(() => {
+    setIndex(0);
+    setFlipped(false);
+  }, [search, selectedLevel]);
 
-    // 2️⃣ Keep index safe when filter changes
-    useEffect(() => {
-        setIndex(0);
-        setFlipped(false);
-    }, [search]);
+  const hasCards = filteredFlashcards.length > 0;
+  const currentCard = hasCards ? filteredFlashcards[index] : null;
 
-    
+  return (
+    <Container maxWidth="sm" sx={{ py: 4 }}>
+      <Typography variant="h5" align="center" sx={{ mb: 2 }}>
+        Study
+      </Typography>
 
-    return (
-        <Container maxWidth="sm" sx={{ py: 4 }}>
-            <Typography variant="h5" align="center" sx={{ mb: 2 }}>
-                Study
-            </Typography>
+      {/* Optional Search (hidden but safe) */}
+      <TextField
+        fullWidth
+        label="Search by title"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        sx={{ mb: 2, display: "none" }}
+      />
 
-            {/* Search */}
-            <TextField
-                fullWidth
-                label="Search by title"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                sx={{
-                    mb: 3,
-                    visibility: "hidden"
-                }}
-            />
-            <FormControl sx={{ m: 1, minWidth: 80 }}>
-                <InputLabel id="demo-simple-select-autowidth-label">Title</InputLabel>
-                <Select
-                    labelId="level-select-label"
-                    id="level-select"
-                    value={selectedLevel}
-                    onChange={(e) => setSelectedLevel(e.target.value)}
-                    autoWidth
-                    label="All"
-                >
-                    <MenuItem value="">
-                        <em>All</em>
-                    </MenuItem>
-                    {levels.map((level) => (
-                        <MenuItem key={level} value={level}>
-                            {level}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
+      {/* Level Filter */}
+      <FormControl fullWidth sx={{ mb: 3 }}>
+        <InputLabel id="level-select-label">Title</InputLabel>
+        <Select
+          labelId="level-select-label"
+          value={selectedLevel}
+          label="Title"
+          onChange={(e) => setSelectedLevel(e.target.value)}
+        >
+          <MenuItem value="">
+            <em>All</em>
+          </MenuItem>
 
-            {/* Card */}
-            <Paper
-                elevation={0}
-                sx={{
-                    p: 3,
-                    mb: 4,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    minHeight: 260,
-                }}
-            >
-                <FlashCard
-                    text={filteredFlashcards[index]}
-                    flipped={flipped}
-                    onClick={() => setFlipped(!flipped)}
-                />
-            </Paper>
+          {levels.map((level) => (
+            <MenuItem key={level} value={level}>
+              {level}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
-            {/* Controls */}
-            <Stack
-                direction="row"
-                spacing={2}
-                justifyContent="center"
-                alignItems="center"
-            >
-                <Button
-                    variant="outlined"
-                    startIcon={<ArrowBackIcon />}
-                    onClick={() => {
-                        setFlipped(false);
-                        setIndex(
-                            (index - 1 + filteredFlashcards.length) %
-                            filteredFlashcards.length
-                        );
-                    }}
-                />
+      {/* Card Area */}
+      <Paper
+        elevation={1}
+        sx={{
+          p: 3,
+          mb: 4,
+          minHeight: 260,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        {hasCards ? (
+          <FlashCard
+            text={currentCard}
+            flipped={flipped}
+            onClick={() => setFlipped(!flipped)}
+          />
+        ) : (
+          <Typography color="text.secondary">
+            No flashcards found
+          </Typography>
+        )}
+      </Paper>
 
-                <Typography fontWeight="bold">
-                    {index + 1} / {filteredFlashcards.length}
-                </Typography>
+      {/* Controls */}
+      {hasCards && (
+        <Stack direction="row" spacing={2} justifyContent="center">
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
+            onClick={() => {
+              setFlipped(false);
+              setIndex((prev) =>
+                prev === 0 ? filteredFlashcards.length - 1 : prev - 1
+              );
+            }}
+          />
 
-                <Button
-                    variant="contained"
-                    endIcon={<ArrowForwardIcon />}
-                    onClick={() => {
-                        setFlipped(false);
-                        setIndex(
-                            (index + 1) % filteredFlashcards.length
-                        );
-                    }}
-                />
-            </Stack>
-        </Container>
-    );
+          <Typography fontWeight="bold">
+            {index + 1} / {filteredFlashcards.length}
+          </Typography>
+
+          <Button
+            variant="contained"
+            endIcon={<ArrowForwardIcon />}
+            onClick={() => {
+              setFlipped(false);
+              setIndex((prev) =>
+                (prev + 1) % filteredFlashcards.length
+              );
+            }}
+          />
+        </Stack>
+      )}
+    </Container>
+  );
 };
 
 export default FlashcardPage;
