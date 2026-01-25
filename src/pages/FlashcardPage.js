@@ -17,7 +17,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-
 } from "@mui/material";
 
 const FlashcardPage = () => {
@@ -26,31 +25,39 @@ const FlashcardPage = () => {
   const [flipped, setFlipped] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState("");
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
+  /* ---------------- FETCH ---------------- */
   useEffect(() => {
+    const fetchFlashcards = async () => {
+      setLoading(true);
+
+      const { data, error } = await supabase
+        .from("flashcards")
+        .select("*")
+        .order("id");
+
+      if (error) {
+        console.error("Fetch error:", error);
+        setFlashcards([]);
+      } else {
+        setFlashcards(data || []);
+      }
+
+      setLoading(false);
+    };
+
     fetchFlashcards();
   }, []);
 
-  const fetchFlashcards = async () => {
-    const { data, error } = await supabase
-      .from("flashcards")
-      .select("*")
-      .order("id");
-
-    if (error) {
-      console.error("Fetch error:", error);
-      return;
-    }
-
-    setFlashcards(data || []);
-  };
-
-  // Unique titles for dropdown
+  /* ---------------- LEVELS ---------------- */
   const levels = useMemo(() => {
-    return Array.from(new Set(flashcards.map((c) => c.title))).filter(Boolean);
+    return Array.from(
+      new Set(flashcards.map((c) => c.title).filter(Boolean))
+    );
   }, [flashcards]);
 
-  // Filter logic
+  /* ---------------- FILTER ---------------- */
   const filteredFlashcards = useMemo(() => {
     return flashcards.filter((card) => {
       const matchesSearch =
@@ -64,6 +71,21 @@ const FlashcardPage = () => {
     });
   }, [flashcards, search, selectedLevel]);
 
+  /* ---------------- INDEX SAFETY ---------------- */
+  useEffect(() => {
+    if (filteredFlashcards.length === 0) {
+      setIndex(0);
+      return;
+    }
+
+    if (index >= filteredFlashcards.length) {
+      setIndex(0);
+    }
+
+    setFlipped(false);
+  }, [filteredFlashcards, index]);
+
+  /* ---------------- RANDOM ---------------- */
   const getRandomIndex = () => {
     if (filteredFlashcards.length <= 1) return 0;
 
@@ -75,23 +97,18 @@ const FlashcardPage = () => {
     return random;
   };
 
+  const currentCard =
+    filteredFlashcards.length > 0
+      ? filteredFlashcards[index]
+      : null;
 
-  // Reset index safely when filters change
-  useEffect(() => {
-    setIndex(0);
-    setFlipped(false);
-  }, [search, selectedLevel]);
-
-  const hasCards = filteredFlashcards.length > 0;
-  const currentCard = hasCards ? filteredFlashcards[index] : null;
-
+  /* ---------------- UI ---------------- */
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
       <Typography variant="h5" align="center" sx={{ mb: 2 }}>
         Study
       </Typography>
 
-      {/* Optional Search (hidden but safe) */}
       <TextField
         fullWidth
         label="Search by title"
@@ -100,19 +117,16 @@ const FlashcardPage = () => {
         sx={{ mb: 2, display: "none" }}
       />
 
-      {/* Level Filter */}
       <FormControl fullWidth sx={{ mb: 3 }}>
-        <InputLabel id="level-select-label">Title</InputLabel>
+        <InputLabel>Title</InputLabel>
         <Select
-          labelId="level-select-label"
           value={selectedLevel}
           label="Title"
           onChange={(e) => setSelectedLevel(e.target.value)}
         >
-          {/* <MenuItem value="">
+          <MenuItem value="">
             <em>All</em>
-          </MenuItem> */}
-
+          </MenuItem>
           {levels.map((level) => (
             <MenuItem key={level} value={level}>
               {level}
@@ -121,7 +135,6 @@ const FlashcardPage = () => {
         </Select>
       </FormControl>
 
-      {/* Card Area */}
       <Paper
         elevation={1}
         sx={{
@@ -133,11 +146,15 @@ const FlashcardPage = () => {
           alignItems: "center",
         }}
       >
-        {hasCards ? (
+        {loading ? (
+          <Typography color="text.secondary">
+            Loading…
+          </Typography>
+        ) : currentCard ? (
           <FlashCard
             text={currentCard}
             flipped={flipped}
-            onClick={() => setFlipped(!flipped)}
+            onClick={() => setFlipped((v) => !v)}
           />
         ) : (
           <Typography color="text.secondary">
@@ -146,8 +163,7 @@ const FlashcardPage = () => {
         )}
       </Paper>
 
-      {/* Controls */}
-      {hasCards && (
+      {!loading && filteredFlashcards.length > 0 && (
         <Stack direction="row" spacing={2} justifyContent="center">
           <Button
             variant="outlined"
@@ -155,7 +171,9 @@ const FlashcardPage = () => {
             onClick={() => {
               setFlipped(false);
               setIndex((prev) =>
-                prev === 0 ? filteredFlashcards.length - 1 : prev - 1
+                prev === 0
+                  ? filteredFlashcards.length - 1
+                  : prev - 1
               );
             }}
           />
@@ -169,8 +187,9 @@ const FlashcardPage = () => {
             endIcon={<ArrowForwardIcon />}
             onClick={() => {
               setFlipped(false);
-              setIndex((prev) =>
-                (prev + 1) % filteredFlashcards.length
+              setIndex(
+                (prev) =>
+                  (prev + 1) % filteredFlashcards.length
               );
             }}
           />
@@ -185,7 +204,6 @@ const FlashcardPage = () => {
           >
             Random
           </Button>
-
         </Stack>
       )}
     </Container>
