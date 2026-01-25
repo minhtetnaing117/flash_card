@@ -109,9 +109,9 @@ const FlashcardPage = () => {
           label="Title"
           onChange={(e) => setSelectedLevel(e.target.value)}
         >
-          <MenuItem value="">
+          {/* <MenuItem value="">
             <em>All</em>
-          </MenuItem>
+          </MenuItem> */}
 
           {levels.map((level) => (
             <MenuItem key={level} value={level}>
