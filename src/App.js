@@ -6,6 +6,8 @@ import {
   NavLink,
   Navigate,
 } from "react-router-dom";
+// import { Link } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 
 import FlashcardPage from "./pages/FlashcardPage";
 import AddPage from "./pages/AddPage";
@@ -201,7 +203,26 @@ const App = () => {
             </IconButton>
           )}
 
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          {/* <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            Flashcard   
+          </Typography> */}
+
+          {/* <Link href="#" underline="none" color="inherit">
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+              Flashcard
+            </Typography>
+          </Link> */}
+
+          <Typography
+            variant="h6"
+            sx={{
+              flexGrow: 1,
+              textDecoration: "none",
+              color: "inherit",
+            }}
+            component={RouterLink}
+            to="/"
+          >
             Flashcard
           </Typography>
 

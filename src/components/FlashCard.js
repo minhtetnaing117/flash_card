@@ -7,7 +7,7 @@ const FlashCard = ({ text, flipped, onClick }) => {
   return (
     <div className={`card ${flipped ? "flipped" : ""}`} onClick={onClick}>
       <div className="card-inner">
-        <div className="card-front">{text.question}</div>
+        <div className="card-front" style={{ fontSize: "34px" }}>{text.question}</div>
         <div className="card-back" style={{
           display: "flex",
           flexDirection: "column",
