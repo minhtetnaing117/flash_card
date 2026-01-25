@@ -4,6 +4,7 @@ import FlashCard from "../components/FlashCard";
 
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ShuffleIcon from "@mui/icons-material/Shuffle";
 
 import {
   Container,
@@ -62,6 +63,18 @@ const FlashcardPage = () => {
       return matchesSearch && matchesLevel;
     });
   }, [flashcards, search, selectedLevel]);
+
+  const getRandomIndex = () => {
+    if (filteredFlashcards.length <= 1) return 0;
+
+    let random;
+    do {
+      random = Math.floor(Math.random() * filteredFlashcards.length);
+    } while (random === index);
+
+    return random;
+  };
+
 
   // Reset index safely when filters change
   useEffect(() => {
@@ -161,6 +174,18 @@ const FlashcardPage = () => {
               );
             }}
           />
+
+          <Button
+            variant="contained"
+            endIcon={<ShuffleIcon />}
+            onClick={() => {
+              setFlipped(false);
+              setIndex(getRandomIndex());
+            }}
+          >
+            Random
+          </Button>
+
         </Stack>
       )}
     </Container>
