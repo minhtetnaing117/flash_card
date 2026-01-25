@@ -30,7 +30,7 @@ const FlashcardPage = () => {
   /* ---------------- FETCH ---------------- */
   useEffect(() => {
     const fetchFlashcards = async () => {
-      setLoading(true);
+      // setLoading(true);
 
       const { data, error } = await supabase
         .from("flashcards")
@@ -38,7 +38,9 @@ const FlashcardPage = () => {
         .order("id");
 
       if (error) {
-        console.error("Fetch error:", error);
+        console.error("Fetch error:", error,supabase
+        .from("flashcards")
+        );
         setFlashcards([]);
       } else {
         setFlashcards(data || []);
