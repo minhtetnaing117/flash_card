@@ -14,6 +14,8 @@ import AddPage from "./pages/AddPage";
 import ExcelPage from "./pages/ExcelPage";
 import LoginPage from "./pages/LoginPage";
 import LogoutPage from "./pages/LogoutPage";
+import NotesPage from "./pages/NotesPage";
+import AddNotePage from "./pages/AddNotePage";
 
 import { supabase } from "./supabaseClient";
 
@@ -35,6 +37,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 const navItems = [
   { label: "Study", path: "/", adminOnly: false },
+  { label: "Notes", path: "/notes", adminOnly: false },
+  { label: "Add Note", path: "/notes/add", adminOnly: true },
   { label: "Add", path: "/add", adminOnly: true },
   { label: "Excel", path: "/excel_add", adminOnly: true },
   // { label: "Logout", path: "/logout", adminOnly: true },
@@ -274,6 +278,7 @@ const App = () => {
         <Route path="/" element={<FlashcardPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/logout" element={<LogoutPage />} />
+        <Route path="/notes" element={<NotesPage />} />
 
         <Route
           path="/add"
@@ -290,6 +295,17 @@ const App = () => {
           element={
             isAuthenticated && isAdmin ? (
               <ExcelPage />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+
+        <Route
+          path="/notes/add"
+          element={
+            isAuthenticated && isAdmin ? (
+              <AddNotePage />
             ) : (
               <Navigate to="/login" replace />
             )
