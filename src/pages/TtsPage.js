@@ -1,30 +1,31 @@
-import React, { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Container,
   Typography,
   CircularProgress,
   Stack,
-  Button,
-  MenuItem,
-  Select,
   FormControl,
   InputLabel,
+  Select,
+  MenuItem,
+  Button,
 } from "@mui/material";
-import TtsItem, { speakJapaneseAndMyanmar } from "../components/TtsItem";
+import TtsItem from "../components/TtsItem";
+import { speakJapaneseAndMyanmar } from "../components/TtsItemUtils";
+import { supabase } from "../supabaseClient";
 
 const TtsPage = () => {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [titles, setTitles] = useState([]); // list of unique titles
+  const [selectedNote, setSelectedNote] = useState(null);
+  const [titles, setTitles] = useState([]);
   const [selectedTitle, setSelectedTitle] = useState("");
+  const playingRef = useRef(false); // track if "Play All" is active
 
   // Fetch all unique titles first
   useEffect(() => {
     const fetchTitles = async () => {
-      const { data, error } = await supabase
-        .from("flashcards")
-        .select("title", { count: "exact" });
+      const { data, error } = await supabase.from("flashcards").select("title");
       if (!error && data) {
         const uniqueTitles = [...new Set(data.map((d) => d.title))];
         setTitles(uniqueTitles);
@@ -43,19 +44,35 @@ const TtsPage = () => {
       const { data, error } = await supabase
         .from("flashcards")
         .select("*")
-        .match({ title: selectedTitle });
+        .eq("title", selectedTitle);
+
       if (!error) setNotes(data || []);
       setLoading(false);
     };
     fetchNotes();
   }, [selectedTitle]);
 
-  // Speak all notes sequentially
-  const speakAllNotes = async () => {
+  const handleSelect = async (note) => {
+    setSelectedNote(note);
+    await speakJapaneseAndMyanmar(note.question);
+  };
+
+  // Play all notes sequentially
+  const handlePlayAll = async () => {
+    playingRef.current = true;
     for (const note of notes) {
-      await speakJapaneseAndMyanmar(note.question, note.myanmar);
-      await new Promise((res) => setTimeout(res, 500));
+      if (!playingRef.current) break; // stop if flag turned off
+      setSelectedNote(note);
+      await speakJapaneseAndMyanmar(note.question);
+      await new Promise((res) => setTimeout(res, 500)); // small pause between notes
     }
+    playingRef.current = false;
+  };
+
+  // Stop any playing speech
+  const handleStop = () => {
+    playingRef.current = false;
+    window.speechSynthesis.cancel();
   };
 
   return (
@@ -64,6 +81,7 @@ const TtsPage = () => {
         Text To Speech
       </Typography>
 
+      {/* Title Filter */}
       <FormControl fullWidth sx={{ mb: 3 }}>
         <InputLabel>Select Title</InputLabel>
         <Select
@@ -79,27 +97,41 @@ const TtsPage = () => {
         </Select>
       </FormControl>
 
+      {/* Play All / Stop Buttons */}
+      <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handlePlayAll}
+          disabled={notes.length === 0}
+        >
+          ▶ Play All
+        </Button>
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={handleStop}
+          disabled={notes.length === 0}
+        >
+          ■ Stop
+        </Button>
+      </Stack>
+
       {loading ? (
         <CircularProgress />
       ) : notes.length === 0 ? (
-        <Typography color="text.secondary">No data found</Typography>
+        <Typography color="text.secondary">No notes found</Typography>
       ) : (
-        <>
-          <Stack spacing={1} sx={{ mb: 2 }}>
-            {notes.map((note) => (
-              <TtsItem key={note.id} note={note} />
-            ))}
-          </Stack>
-
-          <Button
-            variant="contained"
-            fullWidth
-            onClick={speakAllNotes}
-            sx={{ mt: 2 }}
-          >
-            ▶ Speak All Notes
-          </Button>
-        </>
+        <Stack spacing={1}>
+          {notes.map((note) => (
+            <TtsItem
+              key={note.id}
+              note={note}
+              selected={selectedNote?.id === note.id}
+              onSelect={handleSelect}
+            />
+          ))}
+        </Stack>
       )}
     </Container>
   );
