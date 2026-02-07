@@ -56,11 +56,12 @@ export const speakJapaneseAndMyanmar = async (japaneseText, myanmarText) => {
 
   // Speak Japanese first, then Myanmar
   await new Promise((resolve) => {
-    jaUtterance.onend = () => {
-      myUtterance.onend = resolve;
-      window.speechSynthesis.speak(myUtterance);
-    };
+    // jaUtterance.onend = () => {
+    //   myUtterance.onend = resolve;
+    //   window.speechSynthesis.speak(myUtterance);
+    // };
     window.speechSynthesis.cancel();
+    jaUtterance.onend = resolve;
     window.speechSynthesis.speak(jaUtterance);
   });
 };
