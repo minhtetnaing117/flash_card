@@ -16,6 +16,7 @@ import LoginPage from "./pages/LoginPage";
 import LogoutPage from "./pages/LogoutPage";
 import NotesPage from "./pages/NotesPage";
 import AddNotePage from "./pages/AddNotePage";
+import TtsPage from "./pages/TtsPage";
 
 import { supabase } from "./supabaseClient";
 
@@ -41,6 +42,7 @@ const navItems = [
   { label: "Add Note", path: "/notes/add", adminOnly: true },
   { label: "Add", path: "/add", adminOnly: true },
   { label: "Excel", path: "/excel_add", adminOnly: true },
+  { label: "TTS", path: "/tts", adminOnly: false },
   // { label: "Logout", path: "/logout", adminOnly: true },
 ];
 
@@ -279,6 +281,7 @@ const App = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/logout" element={<LogoutPage />} />
         <Route path="/notes" element={<NotesPage />} />
+        <Route path="/tts" element={<TtsPage />} />
 
         <Route
           path="/add"
@@ -306,6 +309,16 @@ const App = () => {
           element={
             isAuthenticated && isAdmin ? (
               <AddNotePage />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route
+          path="/tts"
+          element={
+            isAuthenticated && isAdmin ? (
+              <TtsPage />
             ) : (
               <Navigate to="/login" replace />
             )
