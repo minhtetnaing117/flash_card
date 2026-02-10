@@ -143,6 +143,7 @@ const TtsPage = () => {
           color="warning"
           onClick={handlePause}
           disabled={!window.speechSynthesis.speaking}
+          disabled={paused}
         >
           ⏸ Pause
         </Button> */}
@@ -150,7 +151,8 @@ const TtsPage = () => {
           variant="outlined"
           color="error"
           onClick={handleStop}
-          disabled={notes.length === 0}
+          // disabled={notes.length === 0}
+          disabled={paused}
         >
           ■ Stop
         </Button>
