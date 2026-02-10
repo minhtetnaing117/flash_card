@@ -17,6 +17,7 @@ import LogoutPage from "./pages/LogoutPage";
 import NotesPage from "./pages/NotesPage";
 import AddNotePage from "./pages/AddNotePage";
 import TtsPage from "./pages/TtsPage";
+import AboutPage from "./pages/AboutPage";
 
 import { supabase } from "./supabaseClient";
 
@@ -43,6 +44,7 @@ const navItems = [
   { label: "Add", path: "/add", adminOnly: true },
   { label: "Excel", path: "/excel_add", adminOnly: true },
   { label: "TTS", path: "/tts", adminOnly: false },
+  { label: "About", path: "/about", adminOnly: false },
   // { label: "Logout", path: "/logout", adminOnly: true },
 ];
 
@@ -137,7 +139,7 @@ const App = () => {
     >
       {/* Header */}
       <Box sx={{ p: 2 }}>
-        <Typography variant="h6">Menu</Typography>
+        <Typography variant="h6">Flash App</Typography>
       </Box>
 
       <Divider />
@@ -282,6 +284,7 @@ const App = () => {
         <Route path="/logout" element={<LogoutPage />} />
         <Route path="/notes" element={<NotesPage />} />
         <Route path="/tts" element={<TtsPage />} />
+        <Route path="/about" element={<AboutPage />} />
 
         <Route
           path="/add"

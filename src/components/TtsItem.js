@@ -1,8 +1,14 @@
 import React from "react";
 import { Paper, Typography } from "@mui/material";
 
+// Check if the title indicates Kanji and the question contains Kanji characters
+const isKanjiTitle = (title = "", text = "") =>
+  title.toLowerCase().includes("kanji") && /[\u4E00-\u9FFF]/.test(text);
+
 const TtsItem = ({ note, onSelect, selected }) => {
   if (!note?.question) return null;
+
+  const showMyanmar = isKanjiTitle(note.title, note.question);
 
   return (
     <Paper
@@ -16,9 +22,17 @@ const TtsItem = ({ note, onSelect, selected }) => {
       onClick={() => onSelect(note)}
     >
       <Typography fontWeight="bold">{note.question}</Typography>
-      <Typography variant="body2" color="text.secondary">
-        {note.myanmar} (Click to select/speak)
-      </Typography>
+
+      {showMyanmar ? (
+        <Typography variant="body2" color="text.secondary">
+          {note.answer} <br /> {note.myanmar}
+        </Typography>
+      ) : (
+        <Typography variant="body2" color="text.secondary">
+          {note.myanmar}
+        </Typography>
+      )}
+
     </Paper>
   );
 };

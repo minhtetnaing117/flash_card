@@ -21,6 +21,8 @@ const TtsPage = () => {
   const [titles, setTitles] = useState([]);
   const [selectedTitle, setSelectedTitle] = useState("");
   const playingRef = useRef(false); // track if "Play All" is active
+  const pausedRef = useRef(false);
+  const [paused, setPaused] = useState(false);
 
   // Fetch all unique titles first
   useEffect(() => {
@@ -60,25 +62,54 @@ const TtsPage = () => {
   // Play all notes sequentially
   const handlePlayAll = async () => {
     playingRef.current = true;
+    pausedRef.current = false;
+    setPaused(false);
+
     for (const note of notes) {
-      if (!playingRef.current) break; // stop if flag turned off
+      if (!playingRef.current) break;
+
       setSelectedNote(note);
       await speakJapaneseAndMyanmar(note.question);
-      await new Promise((res) => setTimeout(res, 500)); // small pause between notes
+
+      // wait while paused
+      while (pausedRef.current) {
+        await new Promise((r) => setTimeout(r, 200));
+      }
+
+      await new Promise((r) => setTimeout(r, 500));
     }
+
     playingRef.current = false;
   };
+
+
+  // const handlePause = () => {
+  //   if (!window.speechSynthesis.speaking) return;
+  //   window.speechSynthesis.pause();
+  //   pausedRef.current = true;
+  //   setPaused(true);
+  // };
+
+  // const handleResume = () => {
+  //   if (!window.speechSynthesis.paused) return;
+  //   window.speechSynthesis.resume();
+  //   pausedRef.current = false;
+  //   setPaused(false);
+  // };
+
 
   // Stop any playing speech
   const handleStop = () => {
     playingRef.current = false;
+    pausedRef.current = false;
+    setPaused(false);
     window.speechSynthesis.cancel();
   };
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
       <Typography variant="h5" align="center" sx={{ mb: 3 }}>
-        Text To Speech
+        Focus Listening Practice
       </Typography>
 
       {/* Title Filter */}
@@ -107,6 +138,14 @@ const TtsPage = () => {
         >
           ▶ Play All
         </Button>
+        {/* <Button
+          variant="outlined"
+          color="warning"
+          onClick={handlePause}
+          disabled={!window.speechSynthesis.speaking}
+        >
+          ⏸ Pause
+        </Button> */}
         <Button
           variant="outlined"
           color="error"
