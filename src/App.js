@@ -10,7 +10,7 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 
 import FlashcardPage from "./pages/FlashcardPage";
-import AddPage from "./pages/AddPage";
+// import AddPage from "./pages/AddPage";
 import ExcelPage from "./pages/ExcelPage";
 import LoginPage from "./pages/LoginPage";
 import LogoutPage from "./pages/LogoutPage";
@@ -41,12 +41,13 @@ import CircularProgress from "@mui/material/CircularProgress";
 const navItems = [
   { label: "Study", path: "/", adminOnly: false },
   { label: "Notes", path: "/notes", adminOnly: false },
-  { label: "Add Note", path: "/notes/add", adminOnly: true },
-  { label: "Add", path: "/add", adminOnly: true },
-  { label: "Excel", path: "/excel_add", adminOnly: true },
+  // { label: "Add", path: "/add", adminOnly: true },
   { label: "TTS", path: "/tts", adminOnly: false },
-  { label: "About", path: "/about", adminOnly: false },
+  { label: "Excel", path: "/excel_add", adminOnly: true },
+  { label: "Add Note", path: "/notes/add", adminOnly: true },
   { label: "CRUD", path: "/crud", adminOnly: true },
+  { label: "About", path: "/about", adminOnly: false },
+  
 
   // { label: "Logout", path: "/logout", adminOnly: true },
 ];
@@ -287,7 +288,7 @@ const App = () => {
         <Route path="/logout" element={<LogoutPage />} />
         <Route path="/notes" element={<NotesPage />} />
         <Route path="/tts" element={<TtsPage />} />
-        <Route path="/about" element={<AboutPage />} />
+
 
         <Route
           path="/crud"
@@ -300,8 +301,8 @@ const App = () => {
           }
         />
 
-
-        <Route
+        <Route path="/about" element={<AboutPage />} />
+        {/* <Route
           path="/add"
           element={
             isAuthenticated && isAdmin ? (
@@ -310,7 +311,7 @@ const App = () => {
               <Navigate to="/login" replace />
             )
           }
-        />
+        /> */}
         <Route
           path="/excel_add"
           element={
