@@ -29,21 +29,24 @@ const FlashcardPage = () => {
 
   /* ---------------- FETCH ---------------- */
   useEffect(() => {
+   
     const fetchFlashcards = async () => {
       // setLoading(true);
 
       const { data, error } = await supabase
         .from("flashcards")
         .select("*")
-        .order("id");
+        // .order("id");
 
       if (error) {
-        console.error("Fetch error:", error,supabase
-        .from("flashcards")
+        console.error("Fetch error:", error, supabase
+          .from("flashcards")
         );
         setFlashcards([]);
       } else {
+        //  console.log('test',supabase.from("flashcards"))
         setFlashcards(data || []);
+
       }
 
       setLoading(false);
@@ -51,6 +54,7 @@ const FlashcardPage = () => {
 
     fetchFlashcards();
   }, []);
+
 
   /* ---------------- LEVELS ---------------- */
   const levels = useMemo(() => {
@@ -68,13 +72,14 @@ const FlashcardPage = () => {
 
       const matchesLevel =
         !selectedLevel || card.title === selectedLevel;
-
+      // console.log('selectedLevel',flashcards)
       return matchesSearch && matchesLevel;
     });
   }, [flashcards, search, selectedLevel]);
 
   /* ---------------- INDEX SAFETY ---------------- */
   useEffect(() => {
+    // console.log('test1',filteredFlashcards)
     if (filteredFlashcards.length === 0) {
       setIndex(0);
       return;
