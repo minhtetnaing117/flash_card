@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { supabase } from "../supabaseClient";
 import {
     Box,
@@ -17,6 +17,7 @@ import EditIcon from "@mui/icons-material/Edit";
 
 const CrudPage = () => {
     const [flashcards, setFlashcards] = useState([]);
+    const [titleFilter, setTitleFilter] = useState(""); // ✅ NEW
     const [form, setForm] = useState({
         title: "",
         question: "",
@@ -26,6 +27,7 @@ const CrudPage = () => {
     const [editingId, setEditingId] = useState(null);
     const [loading, setLoading] = useState(false);
 
+    /* ================= FETCH ================= */
     const fetchFlashcards = async () => {
         setLoading(true);
 
@@ -34,7 +36,7 @@ const CrudPage = () => {
             .select("id, title, question, answer, myanmar")
             .order("created_at", { ascending: false });
 
-        if (!error) setFlashcards(data);
+        if (!error) setFlashcards(data || []);
         else console.error(error);
 
         setLoading(false);
@@ -44,8 +46,38 @@ const CrudPage = () => {
         fetchFlashcards();
     }, []);
 
+    /* ================= DUPLICATE DETECTION ================= */
+    const duplicateMap = useMemo(() => {
+        const count = {};
+
+        flashcards.forEach((card) => {
+            const q = card.question?.trim().toLowerCase();
+            if (!q) return;
+            count[q] = (count[q] || 0) + 1;
+        });
+
+        return count;
+    }, [flashcards]);
+
+    const isDuplicate = (question) => {
+        const q = question?.trim().toLowerCase();
+        return duplicateMap[q] > 1;
+    };
+
+    /* ================= FILTER LOGIC ================= */
+    const filteredFlashcards = useMemo(() => {
+        if (!titleFilter.trim()) return flashcards;
+
+        return flashcards.filter((card) =>
+            card.title
+                ?.toLowerCase()
+                .includes(titleFilter.trim().toLowerCase())
+        );
+    }, [flashcards, titleFilter]);
+
+    /* ================= SUBMIT ================= */
     const handleSubmit = async () => {
-        if (!form.title.trim()) return;
+        if (!form.title.trim() || !form.question.trim()) return;
 
         if (editingId) {
             await supabase
@@ -69,11 +101,13 @@ const CrudPage = () => {
         fetchFlashcards();
     };
 
+    /* ================= DELETE ================= */
     const handleDelete = async (id) => {
         await supabase.from("flashcards").delete().eq("id", id);
         fetchFlashcards();
     };
 
+    /* ================= EDIT ================= */
     const handleEdit = (card) => {
         setForm({
             title: card.title,
@@ -89,6 +123,17 @@ const CrudPage = () => {
             <Typography variant="h5" gutterBottom>
                 Flashcards CRUD
             </Typography>
+
+            {/* ================= TITLE FILTER ================= */}
+            {/* <TextField
+                fullWidth
+                label="Filter by Title"
+                value={titleFilter}
+                onChange={(e) => setTitleFilter(e.target.value)}
+                margin="normal"
+            /> */}
+
+            {/* ================= FORM ================= */}
 
             <TextField
                 fullWidth
@@ -138,31 +183,71 @@ const CrudPage = () => {
                 {editingId ? "Update" : "Add"}
             </Button>
 
+            {/* ================= LIST ================= */}
+             <TextField
+                fullWidth
+                label="Filter by Title"
+                value={titleFilter}
+                onChange={(e) => setTitleFilter(e.target.value)}
+                margin="normal"
+            />
+
             <Box mt={4}>
                 {loading ? (
                     <CircularProgress />
                 ) : (
                     <List>
-                        {flashcards.map((card) => (
-                            <ListItem key={card.id} disablePadding>
-                                <ListItemButton>
-                                    <ListItemText
-                                        primary={`${card.title} - ${card.question}`}
-                                        secondary={`${card.answer} | ${card.myanmar}`}
-                                    />
-                                </ListItemButton>
+                        {filteredFlashcards.map((card) => {
+                            const duplicate = isDuplicate(card.question);
 
-                                <Box>
-                                    <IconButton onClick={() => handleEdit(card)}>
-                                        <EditIcon />
-                                    </IconButton>
-                                    <IconButton onClick={() => handleDelete(card.id)}>
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </Box>
-                            </ListItem>
+                            return (
+                                <ListItem key={card.id} disablePadding>
+                                    <ListItemButton
+                                        sx={{
+                                            borderLeft: duplicate
+                                                ? "5px solid red"
+                                                : "none",
+                                            backgroundColor: duplicate
+                                                ? "rgba(255,0,0,0.08)"
+                                                : "inherit",
+                                            transition: "0.2s",
+                                            "&:hover": {
+                                                backgroundColor: duplicate
+                                                    ? "rgba(255,0,0,0.15)"
+                                                    : "rgba(0,0,0,0.04)",
+                                            },
+                                        }}
+                                    >
+                                        <ListItemText
+                                            primary={
+                                                <>
+                                                    {card.title} - {card.question}
+                                                    {duplicate && (
+                                                        <Typography
+                                                            component="span"
+                                                            color="error"
+                                                            sx={{ ml: 1, fontWeight: "bold" }}
+                                                        >
+                                                            (Duplicate)
+                                                        </Typography>
+                                                    )}
+                                                </>
+                                            }
+                                            secondary={`${card.answer} | ${card.myanmar}`}
+                                        />
+                                    </ListItemButton>
 
-                        ))}
+                                    <Box>
+                                        <IconButton onClick={() => handleEdit(card)}>
+                                            <EditIcon />
+                                        </IconButton>
+                                        <IconButton onClick={() => handleDelete(card.id)}>
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    </Box>
+                                </ListItem>
+                            );
+                        })}
                     </List>
                 )}
             </Box>
