@@ -12,7 +12,6 @@ import {
   Button,
   Stack,
   Paper,
-  TextField,
   FormControl,
   InputLabel,
   Select,
@@ -24,29 +23,49 @@ const FlashcardPage = () => {
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState("");
-  const [search, setSearch] = useState("");
+  // const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
   /* ---------------- FETCH ---------------- */
   useEffect(() => {
-   
     const fetchFlashcards = async () => {
-      // setLoading(true);
+      setLoading(true);
 
-      const { data, error } = await supabase
-        .from("flashcards")
-        .select("*")
-        // .order("id");
+      let from = 0;
+      let allRows = [];
+      let hasMore = true;
+      const PAGE_SIZE = 1000;
 
-      if (error) {
-        console.error("Fetch error:", error, supabase
+      while (hasMore) {
+        const { data, error } = await supabase
           .from("flashcards")
-        );
-        setFlashcards([]);
-      } else {
-        //  console.log('test',supabase.from("flashcards"))
-        setFlashcards(data || []);
+          .select("*") // fetch all fields, e.g., title, question, answer
+          .range(from, from + PAGE_SIZE - 1);
 
+        if (error) {
+          console.error(error);
+          setFlashcards([]);
+          setLoading(false);
+          return;
+        }
+
+        if (!data || data.length < PAGE_SIZE) {
+          hasMore = false;
+        }
+
+        allRows = [...allRows, ...(data || [])];
+        from += PAGE_SIZE;
+      }
+
+      // Optional: filter out rows without title or question
+      const uniqueRows = allRows.filter(
+        (row) => row.title && row.question && row.answer
+      );
+
+      setFlashcards(uniqueRows);
+
+      if (uniqueRows.length > 0) {
+        setIndex(0);
       }
 
       setLoading(false);
@@ -55,31 +74,21 @@ const FlashcardPage = () => {
     fetchFlashcards();
   }, []);
 
-
   /* ---------------- LEVELS ---------------- */
   const levels = useMemo(() => {
-    return Array.from(
-      new Set(flashcards.map((c) => c.title).filter(Boolean))
-    );
+    return Array.from(new Set(flashcards.map((c) => c.title)));
   }, [flashcards]);
 
   /* ---------------- FILTER ---------------- */
   const filteredFlashcards = useMemo(() => {
     return flashcards.filter((card) => {
-      const matchesSearch =
-        !search ||
-        card.title?.toLowerCase().includes(search.toLowerCase());
-
-      const matchesLevel =
-        !selectedLevel || card.title === selectedLevel;
-      // console.log('selectedLevel',flashcards)
-      return matchesSearch && matchesLevel;
+      const matchesLevel = !selectedLevel || card.title === selectedLevel;
+      return matchesLevel;
     });
-  }, [flashcards, search, selectedLevel]);
+  }, [flashcards, selectedLevel]);
 
   /* ---------------- INDEX SAFETY ---------------- */
   useEffect(() => {
-    // console.log('test1',filteredFlashcards)
     if (filteredFlashcards.length === 0) {
       setIndex(0);
       return;
@@ -105,9 +114,7 @@ const FlashcardPage = () => {
   };
 
   const currentCard =
-    filteredFlashcards.length > 0
-      ? filteredFlashcards[index]
-      : null;
+    filteredFlashcards.length > 0 ? filteredFlashcards[index] : null;
 
   /* ---------------- UI ---------------- */
   return (
@@ -115,14 +122,6 @@ const FlashcardPage = () => {
       <Typography variant="h5" align="center" sx={{ mb: 2 }}>
         Study
       </Typography>
-
-      <TextField
-        fullWidth
-        label="Search by title"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        sx={{ mb: 2, display: "none" }}
-      />
 
       <FormControl fullWidth sx={{ mb: 3 }}>
         <InputLabel>Title</InputLabel>
@@ -154,19 +153,15 @@ const FlashcardPage = () => {
         }}
       >
         {loading ? (
-          <Typography color="text.secondary">
-            Loading…
-          </Typography>
+          <Typography color="text.secondary">Loading…</Typography>
         ) : currentCard ? (
           <FlashCard
-            text={currentCard}
+            text={currentCard} // pass full object {title, question, answer}
             flipped={flipped}
             onClick={() => setFlipped((v) => !v)}
           />
         ) : (
-          <Typography color="text.secondary">
-            No flashcards found
-          </Typography>
+          <Typography color="text.secondary">No flashcards found</Typography>
         )}
       </Paper>
 
@@ -178,9 +173,7 @@ const FlashcardPage = () => {
             onClick={() => {
               setFlipped(false);
               setIndex((prev) =>
-                prev === 0
-                  ? filteredFlashcards.length - 1
-                  : prev - 1
+                prev === 0 ? filteredFlashcards.length - 1 : prev - 1
               );
             }}
           />
@@ -194,10 +187,7 @@ const FlashcardPage = () => {
             endIcon={<ArrowForwardIcon />}
             onClick={() => {
               setFlipped(false);
-              setIndex(
-                (prev) =>
-                  (prev + 1) % filteredFlashcards.length
-              );
+              setIndex((prev) => (prev + 1) % filteredFlashcards.length);
             }}
           />
 

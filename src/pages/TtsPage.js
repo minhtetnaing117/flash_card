@@ -14,56 +14,96 @@ import TtsItem from "../components/TtsItem";
 import { speakJapaneseAndMyanmar } from "../components/TtsItemUtils";
 import { supabase } from "../supabaseClient";
 
+const PAGE_SIZE = 1000;
+
 const TtsPage = () => {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedNote, setSelectedNote] = useState(null);
   const [titles, setTitles] = useState([]);
   const [selectedTitle, setSelectedTitle] = useState("");
-  const playingRef = useRef(false); // track if "Play All" is active
-  const pausedRef = useRef(false);
-  const [paused, setPaused] = useState(false);
 
-  // Fetch all unique titles first
+  const playingRef = useRef(false);
+  const pausedRef = useRef(false);
+  // const [paused, setPaused] = useState(false);
+
+  /* ================= FETCH ALL TITLES (PAGINATED) ================= */
   useEffect(() => {
-    const fetchTitles = async () => {
-      const { data, error } = await supabase.from("flashcards").select("title");
-      if (!error && data) {
-        const uniqueTitles = [...new Set(data.map((d) => d.title))];
-        setTitles(uniqueTitles);
-        if (uniqueTitles.length > 0) setSelectedTitle(uniqueTitles[0]);
+    const fetchAllTitles = async () => {
+      let from = 0;
+      let allRows = [];
+      let hasMore = true;
+
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from("flashcards")
+          .select("title")
+          .range(from, from + PAGE_SIZE - 1);
+
+        if (error) {
+          console.error(error);
+          break;
+        }
+
+        if (data.length < PAGE_SIZE) {
+          hasMore = false;
+        }
+
+        allRows = [...allRows, ...data];
+        from += PAGE_SIZE;
+      }
+
+      const uniqueTitles = [
+        ...new Set(allRows.map((d) => d.title).filter(Boolean)),
+      ];
+
+      setTitles(uniqueTitles);
+
+      if (uniqueTitles.length > 0) {
+        setSelectedTitle(uniqueTitles[0]);
       }
     };
-    fetchTitles();
+
+    fetchAllTitles();
   }, []);
 
-  // Fetch notes whenever selectedTitle changes
+  /* ================= FETCH NOTES BY TITLE ================= */
   useEffect(() => {
     if (!selectedTitle) return;
 
     const fetchNotes = async () => {
       setLoading(true);
+
       const { data, error } = await supabase
         .from("flashcards")
-        .select("*")
-        .eq("title", selectedTitle);
+        .select("id, title, question, answer, myanmar")
+        .eq("title", selectedTitle)
+        .order("id", { ascending: true });
 
-      if (!error) setNotes(data || []);
+      if (error) {
+        console.error(error);
+        setNotes([]);
+      } else {
+        setNotes(data || []);
+      }
+
       setLoading(false);
     };
+
     fetchNotes();
   }, [selectedTitle]);
 
+  /* ================= PLAY ONE ================= */
   const handleSelect = async (note) => {
     setSelectedNote(note);
     await speakJapaneseAndMyanmar(note.question);
   };
 
-  // Play all notes sequentially
+  /* ================= PLAY ALL ================= */
   const handlePlayAll = async () => {
     playingRef.current = true;
     pausedRef.current = false;
-    setPaused(false);
+    // setPaused(false);
 
     for (const note of notes) {
       if (!playingRef.current) break;
@@ -71,7 +111,6 @@ const TtsPage = () => {
       setSelectedNote(note);
       await speakJapaneseAndMyanmar(note.question);
 
-      // wait while paused
       while (pausedRef.current) {
         await new Promise((r) => setTimeout(r, 200));
       }
@@ -82,27 +121,11 @@ const TtsPage = () => {
     playingRef.current = false;
   };
 
-
-  // const handlePause = () => {
-  //   if (!window.speechSynthesis.speaking) return;
-  //   window.speechSynthesis.pause();
-  //   pausedRef.current = true;
-  //   setPaused(true);
-  // };
-
-  // const handleResume = () => {
-  //   if (!window.speechSynthesis.paused) return;
-  //   window.speechSynthesis.resume();
-  //   pausedRef.current = false;
-  //   setPaused(false);
-  // };
-
-
-  // Stop any playing speech
+  /* ================= STOP ================= */
   const handleStop = () => {
     playingRef.current = false;
     pausedRef.current = false;
-    setPaused(false);
+    // setPaused(false);
     window.speechSynthesis.cancel();
   };
 
@@ -128,40 +151,32 @@ const TtsPage = () => {
         </Select>
       </FormControl>
 
-      {/* Play All / Stop Buttons */}
+      {/* Controls */}
       <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
         <Button
           variant="contained"
-          color="primary"
           onClick={handlePlayAll}
           disabled={notes.length === 0}
         >
           ▶ Play All
         </Button>
-        {/* <Button
-          variant="outlined"
-          color="warning"
-          onClick={handlePause}
-          disabled={!window.speechSynthesis.speaking}
-          disabled={paused}
-        >
-          ⏸ Pause
-        </Button> */}
+
         <Button
           variant="outlined"
           color="error"
           onClick={handleStop}
-          // disabled={notes.length === 0}
-          disabled={paused}
         >
           ■ Stop
         </Button>
+         
       </Stack>
 
       {loading ? (
         <CircularProgress />
       ) : notes.length === 0 ? (
-        <Typography color="text.secondary">No notes found</Typography>
+        <Typography color="text.secondary">
+          No notes found
+        </Typography>
       ) : (
         <Stack spacing={1}>
           {notes.map((note) => (
