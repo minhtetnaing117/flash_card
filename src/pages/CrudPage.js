@@ -31,13 +31,42 @@ const CrudPage = () => {
     const fetchFlashcards = async () => {
         setLoading(true);
 
-        const { data, error } = await supabase
-            .from("flashcards")
-            .select("id, title, question, answer, myanmar")
-            .order("created_at", { ascending: false });
+        // const { data, error } = await supabase
+        //     .from("flashcards")
+        //     .select("id, title, question, answer, myanmar")
+        //     .order("created_at", { ascending: false });
 
-        if (!error) setFlashcards(data || []);
-        else console.error(error);
+        // if (!error) setFlashcards(data || []);
+        // else console.error(error);
+
+        let from = 0;
+        let allRows = [];
+        let hasMore = true;
+        const PAGE_SIZE = 1000;
+
+        while (hasMore) {
+            const { data, error } = await supabase
+                .from("flashcards")
+                .select("id, title, question, answer, myanmar")
+                .range(from, from + PAGE_SIZE - 1);
+
+            if (error) {
+                console.error(error);
+                break;
+            }
+
+            if (data.length < PAGE_SIZE) hasMore = false;
+
+            allRows = [...allRows, ...data];
+            from += PAGE_SIZE;
+        }
+
+        // optionally remove duplicates based on question
+        const uniqueFlashcards = [
+            ...new Map(allRows.map((item) => [item.question?.trim(), item])).values()
+        ];
+
+        setFlashcards(uniqueFlashcards);
 
         setLoading(false);
     };
@@ -184,7 +213,7 @@ const CrudPage = () => {
             </Button>
 
             {/* ================= LIST ================= */}
-             <TextField
+            <TextField
                 fullWidth
                 label="Filter by Title"
                 value={titleFilter}
