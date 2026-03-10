@@ -18,10 +18,11 @@ const TtsItem = ({ note, onSelect, selected }) => {
         cursor: "pointer",
         bgcolor: selected ? "primary.light" : "background.paper",
         "&:hover": { bgcolor: "grey.100" },
+        
       }}
       onClick={() => onSelect(note)}
     >
-      <Typography fontWeight="bold">{note.question}</Typography>
+      <Typography fontWeight="bold" fontSize= "20px">{note.question}</Typography>
 
       {showMyanmar ? (
         <Typography variant="body2" color="text.secondary">

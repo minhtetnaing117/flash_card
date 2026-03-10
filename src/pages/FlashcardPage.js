@@ -40,6 +40,7 @@ const FlashcardPage = () => {
         const { data, error } = await supabase
           .from("flashcards")
           .select("*") // fetch all fields, e.g., title, question, answer
+          .order("id", { ascending: true })
           .range(from, from + PAGE_SIZE - 1);
 
         if (error) {

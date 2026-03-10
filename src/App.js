@@ -42,7 +42,7 @@ const navItems = [
   { label: "Study", path: "/", adminOnly: false },
   { label: "Notes", path: "/notes", adminOnly: false },
   // { label: "Add", path: "/add", adminOnly: true },
-  { label: "TTS", path: "/tts", adminOnly: false },
+  { label: "Listening Practice", path: "/tts", adminOnly: false },
   { label: "Excel", path: "/excel_add", adminOnly: true },
   { label: "Add Note", path: "/notes/add", adminOnly: true },
   { label: "CRUD", path: "/crud", adminOnly: true },

@@ -112,10 +112,10 @@ const TtsPage = () => {
       await speakJapaneseAndMyanmar(note.question);
 
       while (pausedRef.current) {
-        await new Promise((r) => setTimeout(r, 200));
+        await new Promise((r) => setTimeout(r, 400));
       }
 
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 600));
     }
 
     playingRef.current = false;
@@ -185,6 +185,7 @@ const TtsPage = () => {
               note={note}
               selected={selectedNote?.id === note.id}
               onSelect={handleSelect}
+              
             />
           ))}
         </Stack>
