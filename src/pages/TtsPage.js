@@ -22,6 +22,7 @@ const TtsPage = () => {
   const [selectedNote, setSelectedNote] = useState(null);
   const [titles, setTitles] = useState([]);
   const [selectedTitle, setSelectedTitle] = useState("");
+  const [page, setPage] = useState(0);
 
   const playingRef = useRef(false);
   const pausedRef = useRef(false);
@@ -74,11 +75,15 @@ const TtsPage = () => {
     const fetchNotes = async () => {
       setLoading(true);
 
+      const from = page * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
       const { data, error } = await supabase
         .from("flashcards")
         .select("id, title, question, answer, myanmar")
         .eq("title", selectedTitle)
-        .order("id", { ascending: true });
+        .order("id", { ascending: true })
+        .range(from, to);
 
       if (error) {
         console.error(error);
@@ -91,6 +96,10 @@ const TtsPage = () => {
     };
 
     fetchNotes();
+  }, [selectedTitle, page]);
+
+  useEffect(() => {
+    setPage(0);
   }, [selectedTitle]);
 
   /* ================= PLAY ONE ================= */
@@ -168,7 +177,7 @@ const TtsPage = () => {
         >
           ■ Stop
         </Button>
-         
+
       </Stack>
 
       {loading ? (
@@ -185,11 +194,32 @@ const TtsPage = () => {
               note={note}
               selected={selectedNote?.id === note.id}
               onSelect={handleSelect}
-              
+
             />
           ))}
         </Stack>
       )}
+      <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+        <Button
+          variant="outlined"
+          disabled={page === 0}
+          onClick={() => setPage((p) => p - 1)}
+        >
+          ◀ Previous
+        </Button>
+
+        <Typography sx={{ alignSelf: "center" }}>
+          Page {page + 1}
+        </Typography>
+
+        <Button
+          variant="outlined"
+          disabled={notes.length < PAGE_SIZE}
+          onClick={() => setPage((p) => p + 1)}
+        >
+          Next ▶
+        </Button>
+      </Stack>
     </Container>
   );
 };
