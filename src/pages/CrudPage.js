@@ -15,9 +15,13 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 
+// ✅ NEW IMPORTS
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
 const CrudPage = () => {
     const [flashcards, setFlashcards] = useState([]);
-    const [titleFilter, setTitleFilter] = useState(""); // ✅ NEW
+    const [titleFilter, setTitleFilter] = useState("");
     const [form, setForm] = useState({
         title: "",
         question: "",
@@ -30,14 +34,6 @@ const CrudPage = () => {
     /* ================= FETCH ================= */
     const fetchFlashcards = async () => {
         setLoading(true);
-
-        // const { data, error } = await supabase
-        //     .from("flashcards")
-        //     .select("id, title, question, answer, myanmar")
-        //     .order("created_at", { ascending: false });
-
-        // if (!error) setFlashcards(data || []);
-        // else console.error(error);
 
         let from = 0;
         let allRows = [];
@@ -61,13 +57,12 @@ const CrudPage = () => {
             from += PAGE_SIZE;
         }
 
-        // optionally remove duplicates based on question
+        // Remove duplicates (keep last)
         const uniqueFlashcards = [
             ...new Map(allRows.map((item) => [item.question?.trim(), item])).values()
         ];
 
         setFlashcards(uniqueFlashcards);
-
         setLoading(false);
     };
 
@@ -93,16 +88,52 @@ const CrudPage = () => {
         return duplicateMap[q] > 1;
     };
 
-    /* ================= FILTER LOGIC ================= */
+    /* ================= FILTER ================= */
     const filteredFlashcards = useMemo(() => {
         if (!titleFilter.trim()) return flashcards;
 
         return flashcards.filter((card) =>
-            card.title
-                ?.toLowerCase()
-                .includes(titleFilter.trim().toLowerCase())
+            card.title?.toLowerCase().includes(titleFilter.trim().toLowerCase())
         );
     }, [flashcards, titleFilter]);
+
+    /* ================= EXPORT EXCEL ================= */
+    const handleExportExcel = () => {
+        if (!filteredFlashcards.length) return;
+
+        const exportData = filteredFlashcards.map((card) => ({
+            Title: card.title,
+            Question: card.question,
+            Answer: card.answer,
+            Myanmar: card.myanmar,
+            Duplicate: isDuplicate(card.question) ? "YES" : "NO",
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+        // ✅ Column width
+        worksheet["!cols"] = [
+            { wch: 20 },
+            { wch: 40 },
+            { wch: 40 },
+            { wch: 40 },
+            { wch: 12 },
+        ];
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Flashcards");
+
+        const excelBuffer = XLSX.write(workbook, {
+            bookType: "xlsx",
+            type: "array",
+        });
+
+        const fileData = new Blob([excelBuffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+
+        saveAs(fileData, "flashcards.xlsx");
+    };
 
     /* ================= SUBMIT ================= */
     const handleSubmit = async () => {
@@ -153,24 +184,12 @@ const CrudPage = () => {
                 Flashcards CRUD
             </Typography>
 
-            {/* ================= TITLE FILTER ================= */}
-            {/* <TextField
-                fullWidth
-                label="Filter by Title"
-                value={titleFilter}
-                onChange={(e) => setTitleFilter(e.target.value)}
-                margin="normal"
-            /> */}
-
-            {/* ================= FORM ================= */}
-
+            {/* FORM */}
             <TextField
                 fullWidth
                 label="Title"
                 value={form.title}
-                onChange={(e) =>
-                    setForm({ ...form, title: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
                 margin="normal"
             />
 
@@ -178,9 +197,7 @@ const CrudPage = () => {
                 fullWidth
                 label="Question"
                 value={form.question}
-                onChange={(e) =>
-                    setForm({ ...form, question: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, question: e.target.value })}
                 margin="normal"
             />
 
@@ -188,9 +205,7 @@ const CrudPage = () => {
                 fullWidth
                 label="Answer"
                 value={form.answer}
-                onChange={(e) =>
-                    setForm({ ...form, answer: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, answer: e.target.value })}
                 margin="normal"
             />
 
@@ -198,21 +213,24 @@ const CrudPage = () => {
                 fullWidth
                 label="Myanmar"
                 value={form.myanmar}
-                onChange={(e) =>
-                    setForm({ ...form, myanmar: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, myanmar: e.target.value })}
                 margin="normal"
             />
 
-            <Button
-                variant="contained"
-                onClick={handleSubmit}
-                sx={{ mt: 2 }}
-            >
+            <Button variant="contained" onClick={handleSubmit} sx={{ mt: 2 }}>
                 {editingId ? "Update" : "Add"}
             </Button>
 
-            {/* ================= LIST ================= */}
+            {/* ✅ EXPORT BUTTON */}
+            <Button
+                variant="outlined"
+                onClick={handleExportExcel}
+                sx={{ mt: 2, ml: 2 }}
+            >
+                Export Excel
+            </Button>
+
+            {/* FILTER */}
             <TextField
                 fullWidth
                 label="Filter by Title"
@@ -221,6 +239,7 @@ const CrudPage = () => {
                 margin="normal"
             />
 
+            {/* LIST */}
             <Box mt={4}>
                 {loading ? (
                     <CircularProgress />
@@ -233,18 +252,10 @@ const CrudPage = () => {
                                 <ListItem key={card.id} disablePadding>
                                     <ListItemButton
                                         sx={{
-                                            borderLeft: duplicate
-                                                ? "5px solid red"
-                                                : "none",
+                                            borderLeft: duplicate ? "5px solid red" : "none",
                                             backgroundColor: duplicate
                                                 ? "rgba(255,0,0,0.08)"
                                                 : "inherit",
-                                            transition: "0.2s",
-                                            "&:hover": {
-                                                backgroundColor: duplicate
-                                                    ? "rgba(255,0,0,0.15)"
-                                                    : "rgba(0,0,0,0.04)",
-                                            },
                                         }}
                                     >
                                         <ListItemText
